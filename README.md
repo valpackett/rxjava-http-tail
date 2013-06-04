@@ -4,6 +4,47 @@ A [RxJava](https://github.com/Netflix/RxJava/wiki)-based port of [Net::HTTP::Fol
 
 This allows you to follow logs like `tail -f` through HTTP.
 
+## Installation
+
+rxjava-http-tail is pushed to [Clojars](https://clojars.org).
+
+So if you're using Leiningen, just add this dependency:
+
+```clojure
+[rxjava-http-tail "0.1.0"]
+```
+
+With Gradle:
+
+```groovy
+repositories {
+  maven {
+    url "http://clojars.org/repo"
+  }
+}
+
+dependencies {
+  runtime group: 'rxjava-http-tail', name: 'rxjava-http-tail', version: '0.1.0'
+}
+```
+
+And Maven:
+
+```xml
+<repository>
+  <id>clojars.org</id>
+  <url>http://clojars.org/repo</url>
+</repository>
+```
+
+```xml
+<dependency>
+  <groupId>rxjava-http-tail</groupId>
+  <artifactId>rxjava-http-tail</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
 ## Usage
 
 It can be used from any language on the JVM, but here's an example in Clojure:

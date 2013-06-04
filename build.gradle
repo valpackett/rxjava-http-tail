@@ -1,5 +1,5 @@
 group = "rxjava-http-tail"
-version = "0.0.1"
+version = "0.1.0"
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -17,7 +17,7 @@ uploadArchives {
   repositories.mavenDeployer {
     name = 'sshDeployer'
     repository(url: "https://clojars.org/repo") {
-      authentication(userName: System.getProperty('clojarsUser'), password: System.getProperty('clojarsPassword'))
+      authentication(userName: clojarsUsername, password: clojarsPassword)
     }
     pom.project {
       name 'rxjava-http-tail'
