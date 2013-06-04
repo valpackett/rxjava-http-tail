@@ -28,6 +28,6 @@ It can be used from any language on the JVM, but here's an example in Clojure:
 ```
 
 ```shell
-$ echo "59690466" > offset.txt
+$ echo -n "59690466" > offset.txt
 $ lein run -m example
 ```
