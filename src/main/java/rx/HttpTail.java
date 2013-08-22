@@ -3,6 +3,7 @@ package rx;
 import rx.Observable;
 import rx.util.functions.Func1;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.google.api.client.http.GenericUrl;
@@ -19,13 +20,13 @@ import com.google.api.client.util.ExponentialBackOff;
 public class HttpTail {
 
   public static final class TailResult {
-    private final String body;
+    private final InputStream body;
     private final long offset;
 
-    public String getBody() { return body; }
+    public InputStream getBody() { return body; }
     public long getOffset() { return offset; }
 
-    public TailResult(String aBody, long anOffset) {
+    public TailResult(InputStream aBody, long anOffset) {
       body = aBody;
       offset = anOffset;
     }
@@ -48,48 +49,45 @@ public class HttpTail {
     return Observable.create(new Func1<Observer<TailResult>, Subscription>() {
       public Subscription call(Observer<TailResult> observer) {
         final Observer fObserver = observer;
+        final Timer timer = new Timer();
 
-        final Thread t = new Thread(new Runnable() {
-          private long offset;
+        final TimerTask task = new TimerTask() {
+          private long offset = startingOffset;
+
+          long getLength() throws IOException {
+            HttpRequest request = requestFactory.buildHeadRequest(url);
+            request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
+            HttpResponse response = request.execute();
+            return response.getHeaders().getContentLength();
+          }
+
+          HttpResponse getContent(long currentLength) throws IOException {
+            HttpRequest request = requestFactory.buildGetRequest(url);
+            request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
+            HttpHeaders requestHeaders = new HttpHeaders();
+            requestHeaders.setRange(String.format("bytes=%d-%d", offset, currentLength));
+            request.setHeaders(requestHeaders);
+            return request.execute();
+          }
 
           public void run() {
-            offset = startingOffset;
-
-            new Timer().schedule(new TimerTask() {
-              long getLength() throws IOException {
-                HttpRequest request = requestFactory.buildHeadRequest(url);
-                request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
-                HttpResponse response = request.execute();
-                return response.getHeaders().getContentLength();
+            try {
+              long currentLength = getLength();
+              if (currentLength != offset) {
+                HttpResponse response = getContent(currentLength);
+                offset += response.getHeaders().getContentLength();
+                fObserver.onNext(new TailResult(response.getContent(), offset));
               }
-
-              HttpResponse getContent(long currentLength) throws IOException {
-                HttpRequest request = requestFactory.buildGetRequest(url);
-                request.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()));
-                HttpHeaders requestHeaders = new HttpHeaders();
-                requestHeaders.setRange(String.format("bytes=%d-%d", offset, currentLength));
-                request.setHeaders(requestHeaders);
-                return request.execute();
-              }
-
-              public void run() {
-                try {
-                  long currentLength = getLength();
-                  if (currentLength != offset) {
-                    HttpResponse response = getContent(currentLength);
-                    offset += response.getHeaders().getContentLength();
-                    fObserver.onNext(new TailResult(response.parseAsString(), offset));
-                  }
-                } catch (IOException e) { }
-              }
-            }, 0, delay);
+            } catch (IOException e) { }
           }
-        });
-        t.start();
+        };
+
+        timer.schedule(task, 0, delay);
 
         return new Subscription() {
           public void unsubscribe() {
-            t.interrupt();
+            task.cancel();
+            timer.cancel();
           }
         };
       }

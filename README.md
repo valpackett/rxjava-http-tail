@@ -11,7 +11,7 @@ rxjava-http-tail is pushed to [Clojars](https://clojars.org).
 So if you're using Leiningen, just add this dependency:
 
 ```clojure
-[rxjava-http-tail "0.1.0"]
+[rxjava-http-tail "0.1.2"]
 ```
 
 With Gradle:
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-  runtime group: 'rxjava-http-tail', name: 'rxjava-http-tail', version: '0.1.0'
+  runtime group: 'rxjava-http-tail', name: 'rxjava-http-tail', version: '0.1.2'
 }
 ```
 
@@ -41,7 +41,7 @@ And Maven:
 <dependency>
   <groupId>rxjava-http-tail</groupId>
   <artifactId>rxjava-http-tail</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.2</version>
 </dependency>
 ```
 
@@ -60,8 +60,10 @@ It can be used from any language on the JVM, but here's an example in Clojure:
   (spit "offset.txt" o))
 
 (defn on-result [result]
-  (write-offset (.getOffset result))
-  (prn (.getBody result)))
+  (let [body (.getBody result)] ; the body is an instance of java.io.InputStream
+    (write-offset (.getOffset result))
+    (prn (slurp body))
+    (.close body)))
 
 (-> (HttpTail. "http://crawl.akrasiac.org/logfile-git" (read-offset) 15000)
     .createObservable
