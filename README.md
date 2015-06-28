@@ -1,4 +1,4 @@
-# rxjava-http-tail
+# rxjava-http-tail [![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
 
 A [RxJava](https://github.com/Netflix/RxJava/wiki)-based port of [Net::HTTP::FollowTail](https://github.com/broquaint/net-http-follow_tail) to the JVM-land.
 
@@ -74,3 +74,15 @@ It can be used from any language on the JVM, but here's an example in Clojure:
 $ echo -n "59690466" > offset.txt
 $ lein run -m example
 ```
+
+## Contributing
+
+Please feel free to submit pull requests!
+Bugfixes and simple non-breaking improvements will be accepted without any questions :-)
+
+By participating in this project you agree to follow the [Contributor Code of Conduct](http://contributor-covenant.org/version/1/1/0/).
+
+## License
+
+This is free and unencumbered software released into the public domain.  
+For more information, please refer to the `UNLICENSE` file or [unlicense.org](http://unlicense.org).
