@@ -1,17 +1,22 @@
 package rx;
 
-import com.google.api.client.http.*;
-import com.google.api.client.http.apache.ApacheHttpTransport;
-import com.google.api.client.util.ExponentialBackOff;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
+import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.api.client.util.ExponentialBackOff;
 
   public class HttpTail {
 
@@ -19,13 +24,8 @@ import java.util.TimerTask;
       private final InputStream body;
       private final long offset;
 
-      public InputStream getBody() {
-        return body;
-      }
-
-      public long getOffset() {
-        return offset;
-      }
+      public InputStream getBody() { return body; }
+      public long getOffset() { return offset; }
 
       public TailResult(InputStream aBody, long anOffset) {
         body = aBody;
